@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>技术 on otifik&#39;s blog</title>
+    <link>https://www.otifik.xyz/posts/tech/</link>
+    <description>Recent content in 技术 on otifik&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 18 May 2023 09:29:50 +0800</lastBuildDate><atom:link href="https://www.otifik.xyz/posts/tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Android mipmap与drawable区别</title>
+      <link>https://www.otifik.xyz/posts/tech/android-mipmap-drawable/</link>
+      <pubDate>Thu, 18 May 2023 09:29:50 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/android-mipmap-drawable/</guid>
+      <description>区别 在apk安装的时候，mipmap-xxx/下的所有分辨率的图片都会保留，而drawablexxx/下的图片只有保留适配设备分辨率的图片，其余图片会丢弃掉，减少了APP安装大小。
+It’s best practice to place your app icons in mipmap- folders (not the drawable-folders) because they are used at resolutions different from the device’s current density。——from Android Developers Blog
+Using a mipmap as the source for your bitmap or drawable is a simple way to provide a quality image and various image scales, which can be particularly useful if you expect your image to be scaled during an animation.</description>
+    </item>
+    
+    <item>
+      <title>Kotlin反射&amp;泛型</title>
+      <link>https://www.otifik.xyz/posts/tech/kotlin-generics/</link>
+      <pubDate>Wed, 17 May 2023 09:49:52 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/kotlin-generics/</guid>
+      <description>泛型擦除机制：编译器会将T这样的泛型擦除成Object，虚拟机本身是不知道泛型的。Java的泛型是由编译器在编译时实行的，编译器内部永远把所有类型T视为Object处理，但是，在需要转型的时候，编译器会根据T的类型自动为我们实行安全地强制转型。
+编译器看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo&amp;lt;T&amp;gt;{ private T bar; public Foo(T bar) { this.bar = bar; } public T getBar() { return bar; } public void setBar(T bar) { this.bar = bar; } } 虚拟机看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo{ private Object bar; public Foo(Object bar) { this.</description>
+    </item>
+    
+    <item>
+      <title>Kotlin委托深究</title>
+      <link>https://www.otifik.xyz/posts/tech/kotlin-delegate/</link>
+      <pubDate>Mon, 15 May 2023 15:05:34 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/kotlin-delegate/</guid>
+      <description>Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。
+引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html
+类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(&amp;#34;fun has override&amp;#34;) } } fun main() { val b = BaseImpl(10) Derived(b).</description>
+    </item>
+    
+    <item>
+      <title>iPad文件传输到windows</title>
+      <link>https://www.otifik.xyz/posts/tech/ipadtowindows/</link>
+      <pubDate>Wed, 03 May 2023 18:04:56 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/ipadtowindows/</guid>
+      <description>iPad文件传输到windows 处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到
+准备工作：打开SMB 控制面板-程序-启用或关闭windows功能
+确定后重启电脑
+创建共享文件夹 任意位置新建文件夹，右键属性-共享
+点击共享
+选择自己的账号并添加，然后点击共享（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）
+iPad连接 然后iPad上打开文件，点击三个点图标-连接服务器
+输入smb://+电脑端的ip地址（cmd通过ipconfig获取，不多赘述）
+选择注册用户，输入windows用户名和密码
+用户就是C:/Users下的用户，密码就是pin
+上传文件至共享文件夹 点击分享-存储到文件，然后直接点共享文件夹存进去就好啦</description>
+    </item>
+    
+    <item>
+      <title>Scoop的安装使用</title>
+      <link>https://www.otifik.xyz/posts/tech/scoop/</link>
+      <pubDate>Tue, 14 Mar 2023 19:34:52 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/scoop/</guid>
+      <description>Scoop windows包管理器
+安装 管理员模式打开PowerShell，设置用户安装路径和全局安装路径，
+1 2 3 4 $env:SCOOP=&amp;#39;D:\Scoop&amp;#39; [Environment]::SetEnvironmentVariable(&amp;#39;SCOOP&amp;#39;, $env:SCOOP, &amp;#39;User&amp;#39;) $env:SCOOP_GLOBAL=&amp;#39;D:\ScoopGlobal&amp;#39; [Environment]::SetEnvironmentVariable(&amp;#39;SCOOP_GLOBAL&amp;#39;, $env:SCOOP_GLOBAL, &amp;#39;Machine&amp;#39;) 设置PowerShell执行策略为RemoteSigned
+1 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser 安装Scoop
+1 iwr -useb get.scoop.sh | iex Scoop中安装git
+1 scoop install git 最好打开git初始化一下，否则会出现timeout等情况
+使用 添加bucket 1 scoop bucket add &amp;lt;bucketname&amp;gt; 安装软件 1 scoop install &amp;lt;app&amp;gt; 管理软件缓存 1 2 3 scoop cache show #显示安装包缓存 scoop cache rm &amp;lt;app&amp;gt; #删除指定应用的安装包缓存 scoop cache rm * #删除所有的安装包缓存 全局安装软件 1 scoop install -g &amp;lt;app&amp;gt; Aria2多线程下载 1 scoop install aria2 配置相关设置</description>
+    </item>
+    
+    <item>
+      <title>通过ESP8266CH340控制sg90舵机</title>
+      <link>https://www.otifik.xyz/posts/tech/esp8266_sg90/</link>
+      <pubDate>Sat, 12 Nov 2022 22:26:06 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/esp8266_sg90/</guid>
+      <description>如何用esp8266开发板控制sg90进行旋转 所需工具 硬件准备：
+1.esp8266 CH340开发板
+2.sg90舵机
+3.杜邦线若干
+4.一根microusb数据线（不同usb数据线的区别）
+请注意不同usb数据线的区别！！！
+一般有两种usb数据线，一种是充电线，另一种是数据线。
+充电线和数据线的区别在于充电线无法传输数据，而数据线可以传输数据。
+一般数据线和充电线都是用USB接口的，一般都会有四根线。充电线用到的是电源的VCC和GND这两个线，而数据线是用到VCC，GND，和两根通信线。数据线在USB接口那跟线里有四条线，而电源线在USB那个线里有两条线，所以，数据线可以当电源线，而电源线不能用作数据线。
+如果插入电脑驱动安装无反应请选择别的数据线。
+请选择正确的数据线以保证开发板连接电脑时能正常安装驱动！！！
+数据线的接线方式
+红线：电源正极（接线上的标识为：+5V或VCC）
+白线：负电压数据线（标识为：Data-或USB Port -）
+绿线：正电压数据线（标识为：Data+或USB Port +）
+黑线：接地（标识为：GROUND或GND）
+充电线的接线方式
+红线：电源正极（接线上的标识为：+5V或VCC）
+黑线：接地（标识为：GROUND或GND）
+软件准备：
+1.Arduino IDE（官网安装）
+2.驱动
+3.串口调试助手（通过Microsoft Store进行安装）
+安装驱动
+驱动下载链接：https://www.wch.cn/download/CH341SER_EXE.html
+1.将开发板通过usb数据线连接至电脑
+2.启动CH341SER.EXE并进行安装
+3.通过设备管理器查看是否安装成功
+原理 esp8266开发板作为服务器，客户端通过访问服务器的页面来控制sg90舵机进行旋转
+步骤 1.接线
+引脚说明图
+如图
+全景
+esp视角
+杜邦线视角
+原理解释
+2.代码编写
+Servo库运用
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 #include &amp;lt;Servo.</description>
+    </item>
+    
+  </channel>
+</rss>

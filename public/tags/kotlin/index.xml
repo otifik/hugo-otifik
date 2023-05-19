@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>kotlin on otifik&#39;s blog</title>
+    <link>https://www.otifik.xyz/tags/kotlin/</link>
+    <description>Recent content in kotlin on otifik&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 17 May 2023 09:49:52 +0800</lastBuildDate><atom:link href="https://www.otifik.xyz/tags/kotlin/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kotlin反射&amp;泛型</title>
+      <link>https://www.otifik.xyz/posts/tech/kotlin-generics/</link>
+      <pubDate>Wed, 17 May 2023 09:49:52 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/kotlin-generics/</guid>
+      <description>泛型擦除机制：编译器会将T这样的泛型擦除成Object，虚拟机本身是不知道泛型的。Java的泛型是由编译器在编译时实行的，编译器内部永远把所有类型T视为Object处理，但是，在需要转型的时候，编译器会根据T的类型自动为我们实行安全地强制转型。
+编译器看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo&amp;lt;T&amp;gt;{ private T bar; public Foo(T bar) { this.bar = bar; } public T getBar() { return bar; } public void setBar(T bar) { this.bar = bar; } } 虚拟机看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo{ private Object bar; public Foo(Object bar) { this.</description>
+    </item>
+    
+    <item>
+      <title>Kotlin委托深究</title>
+      <link>https://www.otifik.xyz/posts/tech/kotlin-delegate/</link>
+      <pubDate>Mon, 15 May 2023 15:05:34 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/kotlin-delegate/</guid>
+      <description>Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。
+引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html
+类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(&amp;#34;fun has override&amp;#34;) } } fun main() { val b = BaseImpl(10) Derived(b).</description>
+    </item>
+    
+  </channel>
+</rss>

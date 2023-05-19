@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>iPad文件传输到windows | otifik&#39;s blog</title>
+<meta name="keywords" content="ios, windows">
+<meta name="description" content="iPad文件传输到windows 处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到
+准备工作：打开SMB 控制面板-程序-启用或关闭windows功能
+确定后重启电脑
+创建共享文件夹 任意位置新建文件夹，右键属性-共享
+点击共享
+选择自己的账号并添加，然后点击共享（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）
+iPad连接 然后iPad上打开文件，点击三个点图标-连接服务器
+输入smb://&#43;电脑端的ip地址（cmd通过ipconfig获取，不多赘述）
+选择注册用户，输入windows用户名和密码
+用户就是C:/Users下的用户，密码就是pin
+上传文件至共享文件夹 点击分享-存储到文件，然后直接点共享文件夹存进去就好啦">
+<meta name="author" content="otifik">
+<link rel="canonical" href="https://www.otifik.xyz/posts/tech/ipadtowindows/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b183800e2cfbb62c3bce2b2ba56cdb2dd33af76c75cf4550173d5dfebd7c68a6.css" integrity="sha256-sYOADiz7tiw7zisrpWzbLdM692x1z0VQFz1d/r18aKY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="apple-touch-icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="mask-icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="iPad文件传输到windows" />
+<meta property="og:description" content="iPad文件传输到windows 处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到
+准备工作：打开SMB 控制面板-程序-启用或关闭windows功能
+确定后重启电脑
+创建共享文件夹 任意位置新建文件夹，右键属性-共享
+点击共享
+选择自己的账号并添加，然后点击共享（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）
+iPad连接 然后iPad上打开文件，点击三个点图标-连接服务器
+输入smb://&#43;电脑端的ip地址（cmd通过ipconfig获取，不多赘述）
+选择注册用户，输入windows用户名和密码
+用户就是C:/Users下的用户，密码就是pin
+上传文件至共享文件夹 点击分享-存储到文件，然后直接点共享文件夹存进去就好啦" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.otifik.xyz/posts/tech/ipadtowindows/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-05-03T18:04:56&#43;08:00" />
+<meta property="article:modified_time" content="2023-05-03T18:04:56&#43;08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="iPad文件传输到windows"/>
+<meta name="twitter:description" content="iPad文件传输到windows 处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到
+准备工作：打开SMB 控制面板-程序-启用或关闭windows功能
+确定后重启电脑
+创建共享文件夹 任意位置新建文件夹，右键属性-共享
+点击共享
+选择自己的账号并添加，然后点击共享（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）
+iPad连接 然后iPad上打开文件，点击三个点图标-连接服务器
+输入smb://&#43;电脑端的ip地址（cmd通过ipconfig获取，不多赘述）
+选择注册用户，输入windows用户名和密码
+用户就是C:/Users下的用户，密码就是pin
+上传文件至共享文件夹 点击分享-存储到文件，然后直接点共享文件夹存进去就好啦"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Posts",
+      "item": "https://www.otifik.xyz/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "技术",
+      "item": "https://www.otifik.xyz/posts/tech/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "iPad文件传输到windows",
+      "item": "https://www.otifik.xyz/posts/tech/ipadtowindows/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "iPad文件传输到windows",
+  "name": "iPad文件传输到windows",
+  "description": "iPad文件传输到windows 处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到\n准备工作：打开SMB 控制面板-程序-启用或关闭windows功能\n确定后重启电脑\n创建共享文件夹 任意位置新建文件夹，右键属性-共享\n点击共享\n选择自己的账号并添加，然后点击共享（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）\niPad连接 然后iPad上打开文件，点击三个点图标-连接服务器\n输入smb://+电脑端的ip地址（cmd通过ipconfig获取，不多赘述）\n选择注册用户，输入windows用户名和密码\n用户就是C:/Users下的用户，密码就是pin\n上传文件至共享文件夹 点击分享-存储到文件，然后直接点共享文件夹存进去就好啦",
+  "keywords": [
+    "ios", "windows"
+  ],
+  "articleBody": "iPad文件传输到windows 处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到\n准备工作：打开SMB 控制面板-程序-启用或关闭windows功能\n确定后重启电脑\n创建共享文件夹 任意位置新建文件夹，右键属性-共享\n点击共享\n选择自己的账号并添加，然后点击共享（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）\niPad连接 然后iPad上打开文件，点击三个点图标-连接服务器\n输入smb://+电脑端的ip地址（cmd通过ipconfig获取，不多赘述）\n选择注册用户，输入windows用户名和密码\n用户就是C:/Users下的用户，密码就是pin\n上传文件至共享文件夹 点击分享-存储到文件，然后直接点共享文件夹存进去就好啦\n",
+  "wordCount" : "16",
+  "inLanguage": "en",
+  "datePublished": "2023-05-03T18:04:56+08:00",
+  "dateModified": "2023-05-03T18:04:56+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "otifik"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.otifik.xyz/posts/tech/ipadtowindows/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "otifik's blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.otifik.xyz/img/moka_circle.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://www.otifik.xyz" accesskey="h" title="otifik&#39;s blog (Alt + H)">otifik&#39;s blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://www.otifik.xyz/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.otifik.xyz/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.otifik.xyz/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://www.otifik.xyz">Home</a>&nbsp;»&nbsp;<a href="https://www.otifik.xyz/posts/">Posts</a>&nbsp;»&nbsp;<a href="https://www.otifik.xyz/posts/tech/">技术</a></div>
+    <h1 class="post-title">
+      iPad文件传输到windows
+    </h1>
+    <div class="post-meta"><span title='2023-05-03 18:04:56 +0800 CST'>May 3, 2023</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;otifik
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#ipad%e6%96%87%e4%bb%b6%e4%bc%a0%e8%be%93%e5%88%b0windows" aria-label="iPad文件传输到windows">iPad文件传输到windows</a><ul>
+                        
+                <li>
+                    <a href="#%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c%e6%89%93%e5%bc%80smb" aria-label="准备工作：打开SMB">准备工作：打开SMB</a></li>
+                <li>
+                    <a href="#%e5%88%9b%e5%bb%ba%e5%85%b1%e4%ba%ab%e6%96%87%e4%bb%b6%e5%a4%b9" aria-label="创建共享文件夹">创建共享文件夹</a></li>
+                <li>
+                    <a href="#ipad%e8%bf%9e%e6%8e%a5" aria-label="iPad连接">iPad连接</a></li>
+                <li>
+                    <a href="#%e4%b8%8a%e4%bc%a0%e6%96%87%e4%bb%b6%e8%87%b3%e5%85%b1%e4%ba%ab%e6%96%87%e4%bb%b6%e5%a4%b9" aria-label="上传文件至共享文件夹">上传文件至共享文件夹</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="ipad文件传输到windows">iPad文件传输到windows<a hidden class="anchor" aria-hidden="true" href="#ipad文件传输到windows">#</a></h1>
+<p>处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到</p>
+<h2 id="准备工作打开smb">准备工作：打开SMB<a hidden class="anchor" aria-hidden="true" href="#准备工作打开smb">#</a></h2>
+<p><strong>控制面板</strong>-<strong>程序</strong>-<strong>启用或关闭windows功能</strong></p>
+<p><img loading="lazy" src="image-20230503171053590.png" alt=""  />
+</p>
+<p>确定后重启电脑</p>
+<h2 id="创建共享文件夹">创建共享文件夹<a hidden class="anchor" aria-hidden="true" href="#创建共享文件夹">#</a></h2>
+<p>任意位置新建文件夹，右键<strong>属性</strong>-<strong>共享</strong></p>
+<p><img loading="lazy" src="image-20230503171606431.png" alt="image-20230503171606431"  />
+</p>
+<p>点击共享</p>
+<p><img loading="lazy" src="image-20230503171820453.png" alt="image-20230503171820453"  />
+</p>
+<p>选择自己的账号并<strong>添加</strong>，然后点击<strong>共享</strong>（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）</p>
+<p><img loading="lazy" src="modified.png" alt="image-20230503171843029"  />
+</p>
+<h2 id="ipad连接">iPad连接<a hidden class="anchor" aria-hidden="true" href="#ipad连接">#</a></h2>
+<p>然后iPad上打开文件，点击<strong>三个点图标</strong>-<strong>连接服务器</strong></p>
+<p><img loading="lazy" src="80601909ABC7EC8078C9A4ADD6C7C267.png" alt="img"  />
+</p>
+<p>输入smb://+电脑端的ip地址（cmd通过ipconfig获取，不多赘述）</p>
+<p><img loading="lazy" src="7802F3DCEB2A6FFF39F02BC22F43F0DD.png" alt="img"  />
+</p>
+<p>选择注册用户，输入windows用户名和密码</p>
+<p><img loading="lazy" src="728E3B0C6DC227306D0FA81D45B417DE.png" alt="img"  />
+</p>
+<p>用户就是C:/Users下的用户，密码就是pin</p>
+<p><img loading="lazy" src="image-20230503173410051.png" alt="image-20230503173410051"  />
+</p>
+<h2 id="上传文件至共享文件夹">上传文件至共享文件夹<a hidden class="anchor" aria-hidden="true" href="#上传文件至共享文件夹">#</a></h2>
+<p>点击<strong>分享</strong>-<strong>存储到文件</strong>，然后直接点共享文件夹存进去就好啦</p>
+<p><img loading="lazy" src="3DE6B68E5174331E62012EB02F48682D.png" alt="img"  />
+</p>
+<p><img loading="lazy" src="D21AC5D2C4CB21B695F87BC4FB9002C2.png" alt="img"  />
+</p>
+<p><img loading="lazy" src="4BBD7A2D3011C30C8E0FD71011BBE998.png" alt="img"  />
+</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://www.otifik.xyz/tags/ios/">ios</a></li>
+      <li><a href="https://www.otifik.xyz/tags/windows/">windows</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://www.otifik.xyz/posts/tech/kotlin-delegate/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Kotlin委托深究</span>
+  </a>
+  <a class="next" href="https://www.otifik.xyz/posts/tech/scoop/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Scoop的安装使用</span>
+  </a>
+</nav>
+
+  </footer><div id="tcomment"></div>
+<script src="https://cdn.staticfile.org/twikoo/1.6.7/twikoo.all.min.js"></script>
+<script>
+twikoo.init({
+  envId: 'https://twikoo-otifik.vercel.app/', 
+  el: '#tcomment', 
+  
+  
+  
+})
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2023 <a href="https://www.otifik.xyz">otifik&#39;s blog</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

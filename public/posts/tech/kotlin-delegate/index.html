@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Kotlin委托深究 | otifik&#39;s blog</title>
+<meta name="keywords" content="kotlin">
+<meta name="description" content="Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。
+引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html
+类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(&#34;fun has override&#34;) } } fun main() { val b = BaseImpl(10) Derived(b).">
+<meta name="author" content="otifik">
+<link rel="canonical" href="https://www.otifik.xyz/posts/tech/kotlin-delegate/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b183800e2cfbb62c3bce2b2ba56cdb2dd33af76c75cf4550173d5dfebd7c68a6.css" integrity="sha256-sYOADiz7tiw7zisrpWzbLdM692x1z0VQFz1d/r18aKY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="apple-touch-icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="mask-icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="Kotlin委托深究" />
+<meta property="og:description" content="Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。
+引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html
+类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(&#34;fun has override&#34;) } } fun main() { val b = BaseImpl(10) Derived(b)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.otifik.xyz/posts/tech/kotlin-delegate/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-05-15T15:05:34&#43;08:00" />
+<meta property="article:modified_time" content="2023-05-15T15:05:34&#43;08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Kotlin委托深究"/>
+<meta name="twitter:description" content="Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。
+引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html
+类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(&#34;fun has override&#34;) } } fun main() { val b = BaseImpl(10) Derived(b)."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Posts",
+      "item": "https://www.otifik.xyz/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "技术",
+      "item": "https://www.otifik.xyz/posts/tech/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Kotlin委托深究",
+      "item": "https://www.otifik.xyz/posts/tech/kotlin-delegate/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Kotlin委托深究",
+  "name": "Kotlin委托深究",
+  "description": "Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。\n引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html\n类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(\u0026#34;fun has override\u0026#34;) } } fun main() { val b = BaseImpl(10) Derived(b).",
+  "keywords": [
+    "kotlin"
+  ],
+  "articleBody": "Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。\n引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html\n类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(\"fun has override\") } } fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： Derived覆写了Base实现类的print 属性委托 将属性访问器的实现委托给另一个对象\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 class Example { var p: String by Delegate() } class Delegate : ReadWriteProperty\u003cAny, String\u003e { override fun getValue(thisRef: Any, property: KProperty\u003c*\u003e): String { return \"$thisRef, thank you for delegating '${property.name}' to me!\" } override fun setValue(thisRef: Any, property: KProperty\u003c*\u003e, value: String) { println(\"$value has been assigned to '${property.name}' in $thisRef.\") } } fun main() { val e = Example() println(e.p) } 解析： 原理和类委托大致类似\n①\n1 2 3 class Example { var p: String by Delegate() } 其中这段代码可以等价为：\n1 2 3 4 5 6 class Example { private val delegate = Delegate() var p: String set(value: String) = delegate.setValue(this, ..., value) get() = delegate.getValue(this, ...) } 可以看到其实p这个属性的get/set交给了delegate来进行维护 by关键字的作用是对它后面的表达式求值（比方说lazy函数）来获取这个对象，在这里就是获取到了Delegate对象。 编译器会创建一个隐藏的辅助属性，并使用委托对象的实例对它进行初始化，在这里就是把Delegate对象赋值给了delegate属性。\nkotlin转java字节码解析\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 public final class Example { // $FF: synthetic field static final KProperty[] $$delegatedProperties = new KProperty[]{(KProperty)Reflection.mutableProperty1(new MutablePropertyReference1Impl(Example.class, \"p\", \"getP()Ljava/lang/String;\", 0))}; @NotNull private final Delegate p$delegate = new Delegate(); @NotNull public final String getP() { return this.p$delegate.getValue(this, $$delegatedProperties[0]); } public final void setP(@NotNull String var1) { Intrinsics.checkNotNullParameter(var1, \"\"); this.p$delegate.setValue(this, $$delegatedProperties[0], (String)var1); } } public final class Delegate implements ReadWriteProperty { @NotNull public String getValue(@NotNull Object thisRef, @NotNull KProperty property) { Intrinsics.checkNotNullParameter(thisRef, \"thisRef\"); Intrinsics.checkNotNullParameter(property, \"property\"); return thisRef + \", thank you for delegating '\" + property.getName() + \"' to me!\"; } // $FF: synthetic method // $FF: bridge method public Object getValue(Object var1, KProperty var2) { return this.getValue(var1, var2); } public void setValue(@NotNull Object thisRef, @NotNull KProperty property, @NotNull String value) { Intrinsics.checkNotNullParameter(thisRef, \"thisRef\"); Intrinsics.checkNotNullParameter(property, \"property\"); Intrinsics.checkNotNullParameter(value, \"value\"); String var4 = value + \" has been assigned to '\" + property.getName() + \"' in \" + thisRef + '.'; System.out.println(var4); } // $FF: synthetic method // $FF: bridge method public void setValue(Object var1, KProperty var2, Object var3) { this.setValue(var1, var2, (String)var3); } } public final class AKt { public static final void main() { Example e = new Example(); String var1 = e.getP(); System.out.println(var1); } // $FF: synthetic method public static void main(String[] var0) { main(); } } 其中thisRef代表发起委托的对象，$$delegatedProperties对象，它是一个KProperty类型的数组，它的元素封装了类，属性名，getter方法签名等信息，也会传递给委托类；KProperty 主要是用来封装属性的元信息，提供给委托类使用，比如在委托类的 setValue 方法中通知属性发生变化时，就会用到 KProperty 里的属性名信息了。\n②\n1 2 3 4 5 6 7 8 9 class Delegate { operator fun getValue(thisRef: Any?, property: KProperty\u003c*\u003e): String { return \"$thisRef, thank you for delegating '${property.name}' to me!\" } operator fun setValue(thisRef: Any?, property: KProperty\u003c*\u003e, value: String) { println(\"$value has been assigned to '${property.name}' in $thisRef.\") } } 委托类必须具有getValue和setValue方法（如果是可变属性的话）,定义在ReadWriteProperty接口里 ReadOnlyProperty对应val，ReadWriteProperty对应var\n1 2 3 4 5 6 7 8 public fun interface ReadOnlyProperty\u003cin T, out V\u003e { public operator fun getValue(thisRef: T, property: KProperty\u003c*\u003e): V } public interface ReadWriteProperty\u003cin T, V\u003e : ReadOnlyProperty\u003cT, V\u003e { public override operator fun getValue(thisRef: T, property: KProperty\u003c*\u003e): V public operator fun setValue(thisRef: T, property: KProperty\u003c*\u003e, value: V) } 虽然 Kotlin 提供了 ReadWriteProperty 和 ReadOnlyProperty 封装了约定的方法给我们使用，但是当我们定义委托类时并不是一定要实现 Kotlin 提供的接口。\n实际上，只要保持委托类里的 setValue 和 getValue 方法与约定的 setValue 方法和 getValue 方法一致就可以了。 如\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 import kotlin.reflect.KProperty import kotlin.reflect.full.valueParameters class Example { var p: String by Delegate() } class Delegate { operator fun getValue(thisRef: Any?, property: KProperty\u003c*\u003e): String { return \"$thisRef, thank you for delegating '${property.name}' to me!\" } operator fun setValue(thisRef: Any?, property: KProperty\u003c*\u003e, value: String) { println(\"$value has been assigned to '${property.name}' in $thisRef.\") } } fun main(){ val e = Example() println(e.p) } kotlin内置委托属性 lazy lazy()是接受一个lambda并返回一个Lazy实例的函数，返回的实例可以作为实现延迟属性的委托：第一次调用get()会执行已传递给lazy()的lambda表达式并记录结果，后续调用get()只是返回记录的结果。\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 public actual fun \u003cT\u003e lazy(initializer: () -\u003e T): Lazy\u003cT\u003e = SynchronizedLazyImpl(initializer) public interface Lazy\u003cout T\u003e { /** * Gets the lazily initialized value of the current Lazy instance. * Once the value was initialized it must not change during the rest of lifetime of this Lazy instance. */ public val value: T /** * Returns `true` if a value for this Lazy instance has been already initialized, and `false` otherwise. * Once this function has returned `true` it stays `true` for the rest of lifetime of this Lazy instance. */ public fun isInitialized(): Boolean } public inline operator fun \u003cT\u003e Lazy\u003cT\u003e.getValue(thisRef: Any?, property: KProperty\u003c*\u003e): T = value private class SynchronizedLazyImpl\u003cout T\u003e(initializer: () -\u003e T, lock: Any? = null) : Lazy\u003cT\u003e, Serializable { private var initializer: (() -\u003e T)? = initializer @Volatile private var _value: Any? = UNINITIALIZED_VALUE // final field is required to enable safe publication of constructed instance private val lock = lock ?: this override val value: T get() { val _v1 = _value if (_v1 !== UNINITIALIZED_VALUE) { @Suppress(\"UNCHECKED_CAST\") return _v1 as T } return synchronized(lock) { val _v2 = _value if (_v2 !== UNINITIALIZED_VALUE) { @Suppress(\"UNCHECKED_CAST\") (_v2 as T) } else { val typedValue = initializer!!() _value = typedValue initializer = null typedValue } } } override fun isInitialized(): Boolean = _value !== UNINITIALIZED_VALUE override fun toString(): String = if (isInitialized()) value.toString() else \"Lazy value not initialized yet.\" private fun writeReplace(): Any = InitializedLazyImpl(value) } 通过源码可以看出，Lazy.kt中定义了符合约定的扩展函数getValue，实例化SynchronizedLazyImpl就是委托对象。\n可观察属性 Observable Delegates.observable() 接受两个参数：初始值与修改时处理程序（handler）。 每当我们给属性赋值时会调用该处理程序（在赋值后执行）。它有三个参数：被赋值的属性、旧值与新值：\n1 2 3 4 var name: String by Delegates.observable(\"no name\") { prop, old, new -\u003e println(\"$old -\u003e $new\") } 源码\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 public inline fun \u003cT\u003e observable(initialValue: T, crossinline onChange: (property: KProperty\u003c*\u003e, oldValue: T, newValue: T) -\u003e Unit): ReadWriteProperty\u003cAny?, T\u003e = object : ObservableProperty\u003cT\u003e(initialValue) { override fun afterChange(property: KProperty\u003c*\u003e, oldValue: T, newValue: T) = onChange(property, oldValue, newValue) } public abstract class ObservableProperty\u003cV\u003e(initialValue: V) : ReadWriteProperty\u003cAny?, V\u003e { private var value = initialValue /** * The callback which is called before a change to the property value is attempted. * The value of the property hasn't been changed yet, when this callback is invoked. * If the callback returns `true` the value of the property is being set to the new value, * and if the callback returns `false` the new value is discarded and the property remains its old value. */ protected open fun beforeChange(property: KProperty\u003c*\u003e, oldValue: V, newValue: V): Boolean = true /** * The callback which is called after the change of the property is made. The value of the property * has already been changed when this callback is invoked. */ protected open fun afterChange(property: KProperty\u003c*\u003e, oldValue: V, newValue: V): Unit {} public override fun getValue(thisRef: Any?, property: KProperty\u003c*\u003e): V { return value } public override fun setValue(thisRef: Any?, property: KProperty\u003c*\u003e, value: V) { val oldValue = this.value if (!beforeChange(property, oldValue, value)) { return } this.value = value afterChange(property, oldValue, value) } } 委托给另一个属性 从 Kotlin 1.4 开始，一个属性可以把它的 getter 与 setter 委托给另一个属性。这种委托对于顶层和类的属性（成员和扩展）都可用。该委托属性可以为：\n-顶层属性 -同一个类的成员或扩展属性 -另一个类的成员或扩展属性 为将一个属性委托给另一个属性，应在委托名称中使用恰当的::限定符，例如，this::delegate或MyClass::delegate。\n1 2 3 4 5 6 7 8 9 10 var topLevelInt: Int = 0 class ClassWithDelegate(val anotherClassInt: Int) class MyClass(var memberInt: Int, val anotherClassInstance: ClassWithDelegate) { var delegatedToMember: Int by this::memberInt var delegatedToTopLevel: Int by ::topLevelInt val delegatedToAnotherClass: Int by anotherClassInstance::anotherClassInt } var MyClass.extDelegated: Int by ::topLevelInt 使用场景：当想要以一种向后兼容的方式重命名一个属性的时候：引入一个新的属性、 使用 @Deprecated 注解来注解旧的属性、并委托其实现。\n1 2 3 4 5 6 7 8 9 10 11 12 13 class MyClass { var newName: Int = 0 @Deprecated(\"Use 'newName' instead\", ReplaceWith(\"newName\")) var oldName: Int by this::newName } fun main() { val myClass = MyClass() // 通知：'oldName: Int' is deprecated. // Use 'newName' instead myClass.oldName = 42 println(myClass.newName) // 42 } 将属性储存在映射中 一个常见的用例是在一个映射（map）里存储属性的值。这经常出现在像解析JSON或者做其他“动态”事情的应用中。在这种情况下，你可以使用映射实例自身作为委托来实现委托属性。\n1 2 3 4 class User(val map: Map\u003cString, Any?\u003e) { val name: String by map val age: Int by map } 在这个例子中，构造函数接受一个映射参数：\n1 2 3 4 val user = User(mapOf( \"name\" to \"John Doe\", \"age\" to 25 )) 委托属性会从这个映射中取值（通过字符串键——属性的名称）：\n1 2 println(user.name) // Prints \"John Doe\" println(user.age) // Prints 25 这也适用于 var 属性，如果把只读的 Map 换成 MutableMap 的话：\n1 2 3 4 class MutableUser(val map: MutableMap\u003cString, Any?\u003e) { var name: String by map var age: Int by map } 局部委托属性 你可以将局部变量声明为委托属性。 例如，你可以使一个局部变量惰性初始化：\n1 2 3 4 5 6 7 fun example(computeFoo: () -\u003e Foo) { val memoizedFoo by lazy(computeFoo) ​ if (someCondition \u0026\u0026 memoizedFoo.isValid()) { memoizedFoo.doSomething() } } memoizedFoo 变量只会在第一次访问时计算。 如果 someCondition 失败，那么该变量根本不会计算。\n提供委托 通过定义 provideDelegate 操作符，可以扩展创建属性实现所委托对象的逻辑。 如果 by 右侧所使用的对象将 provideDelegate 定义为成员或扩展函数，那么会调用该函数来 创建属性委托实例。\nprovideDelegate 的一个可能的使用场景是在创建属性时（而不仅在其 getter 或 setter 中）检查属性一致性。\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 class ResourceDelegate\u003cT\u003e : ReadOnlyProperty\u003cMyUI, T\u003e { override fun getValue(thisRef: MyUI, property: KProperty\u003c*\u003e): T { ... } } class ResourceLoader\u003cT\u003e(id: ResourceID\u003cT\u003e) { operator fun provideDelegate( thisRef: MyUI, prop: KProperty\u003c*\u003e ): ReadOnlyProperty\u003cMyUI, T\u003e { checkProperty(thisRef, prop.name) // 创建委托 return ResourceDelegate() } private fun checkProperty(thisRef: MyUI, name: String) { …… } } class MyUI { fun \u003cT\u003e bindResource(id: ResourceID\u003cT\u003e): ResourceLoader\u003cT\u003e { …… } val image by bindResource(ResourceID.image_id) val text by bindResource(ResourceID.text_id) } prop.name，此处prop指的是被委托属性对象，因此prop.name就是属性的名称，在 checkProperty(thisRef, prop.name)中即可自行检查属性一致性，检查无误后，即可通过返回的getValue完成属性委托\n",
+  "wordCount" : "1644",
+  "inLanguage": "en",
+  "datePublished": "2023-05-15T15:05:34+08:00",
+  "dateModified": "2023-05-15T15:05:34+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "otifik"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.otifik.xyz/posts/tech/kotlin-delegate/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "otifik's blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.otifik.xyz/img/moka_circle.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://www.otifik.xyz" accesskey="h" title="otifik&#39;s blog (Alt + H)">otifik&#39;s blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://www.otifik.xyz/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.otifik.xyz/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.otifik.xyz/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://www.otifik.xyz">Home</a>&nbsp;»&nbsp;<a href="https://www.otifik.xyz/posts/">Posts</a>&nbsp;»&nbsp;<a href="https://www.otifik.xyz/posts/tech/">技术</a></div>
+    <h1 class="post-title">
+      Kotlin委托深究
+    </h1>
+    <div class="post-meta"><span title='2023-05-15 15:05:34 +0800 CST'>May 15, 2023</span>&nbsp;·&nbsp;8 min&nbsp;·&nbsp;otifik
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e7%b1%bb%e5%a7%94%e6%89%98" aria-label="类委托">类委托</a></li>
+                <li>
+                    <a href="#%e5%b1%9e%e6%80%a7%e5%a7%94%e6%89%98" aria-label="属性委托">属性委托</a><ul>
+                        
+                <li>
+                    <a href="#kotlin%e5%86%85%e7%bd%ae%e5%a7%94%e6%89%98%e5%b1%9e%e6%80%a7" aria-label="kotlin内置委托属性">kotlin内置委托属性</a><ul>
+                        
+                <li>
+                    <a href="#lazy" aria-label="lazy">lazy</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%8f%af%e8%a7%82%e5%af%9f%e5%b1%9e%e6%80%a7-observable" aria-label="可观察属性 Observable">可观察属性 Observable</a></li>
+                <li>
+                    <a href="#%e5%a7%94%e6%89%98%e7%bb%99%e5%8f%a6%e4%b8%80%e4%b8%aa%e5%b1%9e%e6%80%a7" aria-label="委托给另一个属性">委托给另一个属性</a></li>
+                <li>
+                    <a href="#%e5%b0%86%e5%b1%9e%e6%80%a7%e5%82%a8%e5%ad%98%e5%9c%a8%e6%98%a0%e5%b0%84%e4%b8%ad" aria-label="将属性储存在映射中">将属性储存在映射中</a></li>
+                <li>
+                    <a href="#%e5%b1%80%e9%83%a8%e5%a7%94%e6%89%98%e5%b1%9e%e6%80%a7" aria-label="局部委托属性">局部委托属性</a></li>
+                <li>
+                    <a href="#%e6%8f%90%e4%be%9b%e5%a7%94%e6%89%98" aria-label="提供委托">提供委托</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。
+用于解耦代码。</p>
+<p>引用文章：
+<a href="https://blog.csdn.net/willway_wang/article/details/120795321">https://blog.csdn.net/willway_wang/article/details/120795321</a>
+<a href="https://www.kotlincn.net/docs/reference/delegated-properties.html">https://www.kotlincn.net/docs/reference/delegated-properties.html</a></p>
+<h1 id="类委托">类委托<a hidden class="anchor" aria-hidden="true" href="#类委托">#</a></h1>
+<p>将接口的实现委托给另一个对象
+但值得注意的是<strong>类必须实现一个接口，委托类必须是类所实现接口的子类型</strong>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">interface</span> <span class="nc">Base</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fun</span> <span class="nf">print</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">BaseImpl</span><span class="p">(</span><span class="k">val</span> <span class="py">x</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">:</span> <span class="n">Base</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">print</span><span class="p">()</span> <span class="p">{</span> <span class="n">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Derived</span><span class="p">(</span><span class="n">b</span><span class="p">:</span> <span class="n">Base</span><span class="p">)</span> <span class="p">:</span> <span class="n">Base</span> <span class="k">by</span> <span class="n">b</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">b</span> <span class="p">=</span> <span class="n">BaseImpl</span><span class="p">(</span><span class="m">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Derived</span><span class="p">(</span><span class="n">b</span><span class="p">).</span><span class="n">print</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>kotlin转java字节码解析：
+by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。
+<img loading="lazy" src="kotlinbytecode1.png" alt=""  />
+</p>
+<p>委托类的接口实现可以通过override覆写，如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">interface</span> <span class="nc">Base</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fun</span> <span class="nf">print</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">BaseImpl</span><span class="p">(</span><span class="k">val</span> <span class="py">x</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">:</span> <span class="n">Base</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">print</span><span class="p">()</span> <span class="p">{</span> <span class="n">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Derived</span><span class="p">(</span><span class="n">b</span><span class="p">:</span> <span class="n">Base</span><span class="p">)</span> <span class="p">:</span> <span class="n">Base</span> <span class="k">by</span> <span class="n">b</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">print</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">print</span><span class="p">(</span><span class="s2">&#34;fun has override&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">b</span> <span class="p">=</span> <span class="n">BaseImpl</span><span class="p">(</span><span class="m">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Derived</span><span class="p">(</span><span class="n">b</span><span class="p">).</span><span class="n">print</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>kotlin转java字节码解析：
+Derived覆写了Base实现类的print
+<img loading="lazy" src="kotlinbytecode2.png" alt=""  />
+</p>
+<h1 id="属性委托">属性委托<a hidden class="anchor" aria-hidden="true" href="#属性委托">#</a></h1>
+<p>将属性访问器的实现委托给另一个对象</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Example</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">p</span><span class="p">:</span> <span class="n">String</span> <span class="k">by</span> <span class="n">Delegate</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Delegate</span> <span class="p">:</span> <span class="n">ReadWriteProperty</span><span class="p">&lt;</span><span class="n">Any</span><span class="p">,</span> <span class="n">String</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">String</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s2">&#34;</span><span class="si">$thisRef</span><span class="s2">, thank you for delegating &#39;</span><span class="si">${property.name}</span><span class="s2">&#39; to me!&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">setValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="k">value</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">println</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">$value</span><span class="s2"> has been assigned to &#39;</span><span class="si">${property.name}</span><span class="s2">&#39; in </span><span class="si">$thisRef</span><span class="s2">.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">e</span> <span class="p">=</span> <span class="n">Example</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">println</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>解析：
+原理和类委托大致类似</p>
+<p>①</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Example</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">p</span><span class="p">:</span> <span class="n">String</span> <span class="k">by</span> <span class="n">Delegate</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>其中这段代码可以等价为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Example</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">private</span> <span class="k">val</span> <span class="py">delegate</span> <span class="p">=</span> <span class="n">Delegate</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">p</span><span class="p">:</span> <span class="n">String</span>
+</span></span><span class="line"><span class="cl">    	<span class="k">set</span><span class="p">(</span><span class="k">value</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="p">=</span> <span class="k">delegate</span><span class="p">.</span><span class="n">setValue</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="o">..</span><span class="p">.,</span> <span class="k">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    	<span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="k">delegate</span><span class="p">.</span><span class="n">getValue</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="o">..</span><span class="p">.)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到其实p这个属性的get/set交给了delegate来进行维护
+<strong>by</strong>关键字的作用是对它后面的表达式求值（比方说lazy函数）来获取这个对象，在这里就是获取到了Delegate对象。
+编译器会创建一个隐藏的辅助属性，并使用委托对象的实例对它进行初始化，在这里就是把Delegate对象赋值给了delegate属性。</p>
+<p>kotlin转java字节码解析</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Example</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// $FF: synthetic field
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="kd">static</span> <span class="kd">final</span> <span class="n">KProperty</span><span class="o">[]</span> <span class="n">$$delegatedProperties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KProperty</span><span class="o">[]{(</span><span class="n">KProperty</span><span class="o">)</span><span class="n">Reflection</span><span class="o">.</span><span class="na">mutableProperty1</span><span class="o">(</span><span class="k">new</span> <span class="n">MutablePropertyReference1Impl</span><span class="o">(</span><span class="n">Example</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&#34;p&#34;</span><span class="o">,</span> <span class="s">&#34;getP()Ljava/lang/String;&#34;</span><span class="o">,</span> <span class="n">0</span><span class="o">))};</span>
+</span></span><span class="line"><span class="cl">   <span class="nd">@NotNull</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Delegate</span> <span class="n">p$delegate</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Delegate</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@NotNull</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">getP</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">p$delegate</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">$$delegatedProperties</span><span class="o">[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">setP</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">String</span> <span class="n">var1</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Intrinsics</span><span class="o">.</span><span class="na">checkNotNullParameter</span><span class="o">(</span><span class="n">var1</span><span class="o">,</span> <span class="s">&#34;&lt;set-?&gt;&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">p$delegate</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">$$delegatedProperties</span><span class="o">[</span><span class="n">0</span><span class="o">],</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span><span class="n">var1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Delegate</span> <span class="kd">implements</span> <span class="n">ReadWriteProperty</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nd">@NotNull</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="n">String</span> <span class="nf">getValue</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">Object</span> <span class="n">thisRef</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="n">KProperty</span> <span class="n">property</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Intrinsics</span><span class="o">.</span><span class="na">checkNotNullParameter</span><span class="o">(</span><span class="n">thisRef</span><span class="o">,</span> <span class="s">&#34;thisRef&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Intrinsics</span><span class="o">.</span><span class="na">checkNotNullParameter</span><span class="o">(</span><span class="n">property</span><span class="o">,</span> <span class="s">&#34;property&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">thisRef</span> <span class="o">+</span> <span class="s">&#34;, thank you for delegating &#39;&#34;</span> <span class="o">+</span> <span class="n">property</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;&#39; to me!&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="c1">// $FF: synthetic method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="c1">// $FF: bridge method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getValue</span><span class="o">(</span><span class="n">Object</span> <span class="n">var1</span><span class="o">,</span> <span class="n">KProperty</span> <span class="n">var2</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="n">var1</span><span class="o">,</span> <span class="n">var2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setValue</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">Object</span> <span class="n">thisRef</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="n">KProperty</span> <span class="n">property</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="n">String</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Intrinsics</span><span class="o">.</span><span class="na">checkNotNullParameter</span><span class="o">(</span><span class="n">thisRef</span><span class="o">,</span> <span class="s">&#34;thisRef&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Intrinsics</span><span class="o">.</span><span class="na">checkNotNullParameter</span><span class="o">(</span><span class="n">property</span><span class="o">,</span> <span class="s">&#34;property&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Intrinsics</span><span class="o">.</span><span class="na">checkNotNullParameter</span><span class="o">(</span><span class="n">value</span><span class="o">,</span> <span class="s">&#34;value&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">var4</span> <span class="o">=</span> <span class="n">value</span> <span class="o">+</span> <span class="s">&#34; has been assigned to &#39;&#34;</span> <span class="o">+</span> <span class="n">property</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;&#39; in &#34;</span> <span class="o">+</span> <span class="n">thisRef</span> <span class="o">+</span> <span class="sc">&#39;.&#39;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">var4</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="c1">// $FF: synthetic method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="c1">// $FF: bridge method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setValue</span><span class="o">(</span><span class="n">Object</span> <span class="n">var1</span><span class="o">,</span> <span class="n">KProperty</span> <span class="n">var2</span><span class="o">,</span> <span class="n">Object</span> <span class="n">var3</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">this</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="n">var1</span><span class="o">,</span> <span class="n">var2</span><span class="o">,</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span><span class="n">var3</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">AKt</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Example</span> <span class="n">e</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Example</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">var1</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">getP</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">var1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="c1">// $FF: synthetic method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">var0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">main</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>其中thisRef代表发起委托的对象，<strong>$$delegatedProperties</strong>对象，它是一个KProperty类型的数组，它的元素封装了类，属性名，getter方法签名等信息，也会传递给委托类；KProperty 主要是用来封装属性的元信息，提供给委托类使用，比如在委托类的 setValue 方法中通知属性发生变化时，就会用到 KProperty 里的属性名信息了。</p>
+<p>②</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Delegate</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">?,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">String</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s2">&#34;</span><span class="si">$thisRef</span><span class="s2">, thank you for delegating &#39;</span><span class="si">${property.name}</span><span class="s2">&#39; to me!&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">setValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">?,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="k">value</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">println</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">$value</span><span class="s2"> has been assigned to &#39;</span><span class="si">${property.name}</span><span class="s2">&#39; in </span><span class="si">$thisRef</span><span class="s2">.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>委托类必须具有<strong>getValue</strong>和<strong>setValue</strong>方法（如果是可变属性的话）,定义在ReadWriteProperty接口里
+ReadOnlyProperty对应val，ReadWriteProperty对应var</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">public</span> <span class="k">fun</span> <span class="nf">interface</span> <span class="n">ReadOnlyProperty</span><span class="p">&lt;</span><span class="k">in</span> <span class="n">T</span><span class="p">,</span> <span class="k">out</span> <span class="n">V</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">operator</span> <span class="k">fun</span> <span class="nf">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">V</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">public</span> <span class="k">interface</span> <span class="nc">ReadWriteProperty</span><span class="p">&lt;</span><span class="k">in</span> <span class="n">T</span><span class="p">,</span> <span class="n">V</span><span class="p">&gt;</span> <span class="p">:</span> <span class="n">ReadOnlyProperty</span><span class="p">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">V</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">override</span> <span class="k">operator</span> <span class="k">fun</span> <span class="nf">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">V</span>
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">operator</span> <span class="k">fun</span> <span class="nf">setValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="k">value</span><span class="p">:</span> <span class="n">V</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>虽然 Kotlin 提供了 ReadWriteProperty 和 ReadOnlyProperty 封装了约定的方法给我们使用，但是当我们定义委托类时并不是一定要实现 Kotlin 提供的接口。</p>
+<p>实际上，只要保持委托类里的 setValue 和 getValue 方法与约定的 setValue 方法和 getValue 方法一致就可以了。
+如</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">import</span> <span class="nn">kotlin.reflect.KProperty</span>
+</span></span><span class="line"><span class="cl"><span class="k">import</span> <span class="nn">kotlin.reflect.full.valueParameters</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Example</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">p</span><span class="p">:</span> <span class="n">String</span> <span class="k">by</span> <span class="n">Delegate</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Delegate</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">?,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">String</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s2">&#34;</span><span class="si">$thisRef</span><span class="s2">, thank you for delegating &#39;</span><span class="si">${property.name}</span><span class="s2">&#39; to me!&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">setValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">?,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="k">value</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">println</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">$value</span><span class="s2"> has been assigned to &#39;</span><span class="si">${property.name}</span><span class="s2">&#39; in </span><span class="si">$thisRef</span><span class="s2">.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">fun</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">e</span> <span class="p">=</span> <span class="n">Example</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">println</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="kotlin内置委托属性">kotlin内置委托属性<a hidden class="anchor" aria-hidden="true" href="#kotlin内置委托属性">#</a></h2>
+<h3 id="lazy">lazy<a hidden class="anchor" aria-hidden="true" href="#lazy">#</a></h3>
+<p>lazy()是接受一个lambda并返回一个Lazy<T>实例的函数，返回的实例可以作为实现延迟属性的委托：第一次调用get()会执行已传递给lazy()的lambda表达式并记录结果，后续调用get()只是返回记录的结果。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">public</span> <span class="k">actual</span> <span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">lazy</span><span class="p">(</span><span class="n">initializer</span><span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">):</span> <span class="n">Lazy</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">=</span> <span class="n">SynchronizedLazyImpl</span><span class="p">(</span><span class="n">initializer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">public</span> <span class="k">interface</span> <span class="nc">Lazy</span><span class="p">&lt;</span><span class="k">out</span> <span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Gets the lazily initialized value of the current Lazy instance.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Once the value was initialized it must not change during the rest of lifetime of this Lazy instance.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">val</span> <span class="py">value</span><span class="p">:</span> <span class="n">T</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Returns `true` if a value for this Lazy instance has been already initialized, and `false` otherwise.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Once this function has returned `true` it stays `true` for the rest of lifetime of this Lazy instance.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">fun</span> <span class="nf">isInitialized</span><span class="p">():</span> <span class="n">Boolean</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">public</span> <span class="k">inline</span> <span class="k">operator</span> <span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">Lazy</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;.</span><span class="n">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">?,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">T</span> <span class="p">=</span> <span class="k">value</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">private</span> <span class="k">class</span> <span class="nc">SynchronizedLazyImpl</span><span class="p">&lt;</span><span class="k">out</span> <span class="n">T</span><span class="p">&gt;(</span><span class="n">initializer</span><span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">,</span> <span class="n">lock</span><span class="p">:</span> <span class="n">Any</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span><span class="p">)</span> <span class="p">:</span> <span class="n">Lazy</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;,</span> <span class="n">Serializable</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">private</span> <span class="k">var</span> <span class="py">initializer</span><span class="p">:</span> <span class="p">(()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">)?</span> <span class="p">=</span> <span class="n">initializer</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Volatile</span> <span class="k">private</span> <span class="k">var</span> <span class="py">_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">?</span> <span class="p">=</span> <span class="n">UNINITIALIZED_VALUE</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// final field is required to enable safe publication of constructed instance
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">private</span> <span class="k">val</span> <span class="py">lock</span> <span class="p">=</span> <span class="n">lock</span> <span class="o">?:</span> <span class="k">this</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">val</span> <span class="py">value</span><span class="p">:</span> <span class="n">T</span>
+</span></span><span class="line"><span class="cl">        <span class="k">get</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">val</span> <span class="py">_v1</span> <span class="p">=</span> <span class="n">_value</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">_v1</span> <span class="o">!==</span> <span class="n">UNINITIALIZED_VALUE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nd">@Suppress</span><span class="p">(</span><span class="s2">&#34;UNCHECKED_CAST&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">_v1</span> <span class="k">as</span> <span class="n">T</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">synchronized</span><span class="p">(</span><span class="n">lock</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">val</span> <span class="py">_v2</span> <span class="p">=</span> <span class="n">_value</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="n">_v2</span> <span class="o">!==</span> <span class="n">UNINITIALIZED_VALUE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nd">@Suppress</span><span class="p">(</span><span class="s2">&#34;UNCHECKED_CAST&#34;</span><span class="p">)</span> <span class="p">(</span><span class="n">_v2</span> <span class="k">as</span> <span class="n">T</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">val</span> <span class="py">typedValue</span> <span class="p">=</span> <span class="n">initializer</span><span class="o">!!</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">_value</span> <span class="p">=</span> <span class="n">typedValue</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">initializer</span> <span class="p">=</span> <span class="k">null</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">typedValue</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">isInitialized</span><span class="p">():</span> <span class="n">Boolean</span> <span class="p">=</span> <span class="n">_value</span> <span class="o">!==</span> <span class="n">UNINITIALIZED_VALUE</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">toString</span><span class="p">():</span> <span class="n">String</span> <span class="p">=</span> <span class="k">if</span> <span class="p">(</span><span class="n">isInitialized</span><span class="p">())</span> <span class="k">value</span><span class="p">.</span><span class="n">toString</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&#34;Lazy value not initialized yet.&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">private</span> <span class="k">fun</span> <span class="nf">writeReplace</span><span class="p">():</span> <span class="n">Any</span> <span class="p">=</span> <span class="n">InitializedLazyImpl</span><span class="p">(</span><span class="k">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>通过源码可以看出，Lazy.kt中定义了符合约定的扩展函数getValue，实例化SynchronizedLazyImpl就是委托对象。</p>
+<h2 id="可观察属性-observable">可观察属性 Observable<a hidden class="anchor" aria-hidden="true" href="#可观察属性-observable">#</a></h2>
+<p>Delegates.observable() 接受两个参数：初始值与修改时处理程序（handler）。 每当我们给属性赋值时会调用该处理程序（在赋值后执行）。它有三个参数：被赋值的属性、旧值与新值：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">var</span> <span class="py">name</span><span class="p">:</span> <span class="n">String</span> <span class="k">by</span> <span class="n">Delegates</span><span class="p">.</span><span class="n">observable</span><span class="p">(</span><span class="s2">&#34;no name&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prop</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">println</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">$old</span><span class="s2"> -&gt; </span><span class="si">$new</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>源码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">public</span> <span class="k">inline</span> <span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">observable</span><span class="p">(</span><span class="n">initialValue</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="k">crossinline</span> <span class="n">onChange</span><span class="p">:</span> <span class="p">(</span><span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="n">oldValue</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">newValue</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Unit</span><span class="p">):</span> <span class="n">ReadWriteProperty</span><span class="p">&lt;</span><span class="n">Any</span><span class="p">?,</span> <span class="n">T</span><span class="p">&gt;</span> <span class="p">=</span>
+</span></span><span class="line"><span class="cl">    <span class="k">object</span> <span class="err">: </span><span class="nc">ObservableProperty</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="n">initialValue</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">override</span> <span class="k">fun</span> <span class="nf">afterChange</span><span class="p">(</span><span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="n">oldValue</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">newValue</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">=</span> <span class="n">onChange</span><span class="p">(</span><span class="k">property</span><span class="p">,</span> <span class="n">oldValue</span><span class="p">,</span> <span class="n">newValue</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">public</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">ObservableProperty</span><span class="p">&lt;</span><span class="n">V</span><span class="p">&gt;(</span><span class="n">initialValue</span><span class="p">:</span> <span class="n">V</span><span class="p">)</span> <span class="p">:</span> <span class="n">ReadWriteProperty</span><span class="p">&lt;</span><span class="n">Any</span><span class="p">?,</span> <span class="n">V</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">private</span> <span class="k">var</span> <span class="py">value</span> <span class="p">=</span> <span class="n">initialValue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *  The callback which is called before a change to the property value is attempted.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *  The value of the property hasn&#39;t been changed yet, when this callback is invoked.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *  If the callback returns `true` the value of the property is being set to the new value,
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *  and if the callback returns `false` the new value is discarded and the property remains its old value.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">protected</span> <span class="k">open</span> <span class="k">fun</span> <span class="nf">beforeChange</span><span class="p">(</span><span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="n">oldValue</span><span class="p">:</span> <span class="n">V</span><span class="p">,</span> <span class="n">newValue</span><span class="p">:</span> <span class="n">V</span><span class="p">):</span> <span class="n">Boolean</span> <span class="p">=</span> <span class="k">true</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * The callback which is called after the change of the property is made. The value of the property
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * has already been changed when this callback is invoked.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">protected</span> <span class="k">open</span> <span class="k">fun</span> <span class="nf">afterChange</span><span class="p">(</span><span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="n">oldValue</span><span class="p">:</span> <span class="n">V</span><span class="p">,</span> <span class="n">newValue</span><span class="p">:</span> <span class="n">V</span><span class="p">):</span> <span class="n">Unit</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">override</span> <span class="k">fun</span> <span class="nf">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">?,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">V</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">value</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">override</span> <span class="k">fun</span> <span class="nf">setValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">Any</span><span class="p">?,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;,</span> <span class="k">value</span><span class="p">:</span> <span class="n">V</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">val</span> <span class="py">oldValue</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="k">value</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(!</span><span class="n">beforeChange</span><span class="p">(</span><span class="k">property</span><span class="p">,</span> <span class="n">oldValue</span><span class="p">,</span> <span class="k">value</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="p">.</span><span class="k">value</span> <span class="p">=</span> <span class="k">value</span>
+</span></span><span class="line"><span class="cl">        <span class="n">afterChange</span><span class="p">(</span><span class="k">property</span><span class="p">,</span> <span class="n">oldValue</span><span class="p">,</span> <span class="k">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="委托给另一个属性">委托给另一个属性<a hidden class="anchor" aria-hidden="true" href="#委托给另一个属性">#</a></h2>
+<p>从 Kotlin 1.4 开始，一个属性可以把它的 getter 与 setter 委托给另一个属性。这种委托对于顶层和类的属性（成员和扩展）都可用。该委托属性可以为：</p>
+<p>-顶层属性
+-同一个类的成员或扩展属性
+-另一个类的成员或扩展属性
+为将一个属性委托给另一个属性，应在委托名称中使用恰当的::限定符，例如，this::delegate或MyClass::delegate。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">var</span> <span class="py">topLevelInt</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ClassWithDelegate</span><span class="p">(</span><span class="k">val</span> <span class="py">anotherClassInt</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="k">var</span> <span class="py">memberInt</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span> <span class="k">val</span> <span class="py">anotherClassInstance</span><span class="p">:</span> <span class="n">ClassWithDelegate</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">delegatedToMember</span><span class="p">:</span> <span class="n">Int</span> <span class="k">by</span> <span class="k">this</span><span class="o">::</span><span class="n">memberInt</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">delegatedToTopLevel</span><span class="p">:</span> <span class="n">Int</span> <span class="k">by</span> <span class="o">::</span><span class="n">topLevelInt</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">delegatedToAnotherClass</span><span class="p">:</span> <span class="n">Int</span> <span class="k">by</span> <span class="n">anotherClassInstance</span><span class="o">::</span><span class="n">anotherClassInt</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">var</span> <span class="py">MyClass</span><span class="p">.</span><span class="n">extDelegated</span><span class="p">:</span> <span class="n">Int</span> <span class="k">by</span> <span class="o">::</span><span class="n">topLevelInt</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用场景：当想要以一种向后兼容的方式重命名一个属性的时候：引入一个新的属性、 使用 @Deprecated 注解来注解旧的属性、并委托其实现。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">var</span> <span class="py">newName</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">   <span class="nd">@Deprecated</span><span class="p">(</span><span class="s2">&#34;Use &#39;newName&#39; instead&#34;</span><span class="p">,</span> <span class="n">ReplaceWith</span><span class="p">(</span><span class="s2">&#34;newName&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">   <span class="k">var</span> <span class="py">oldName</span><span class="p">:</span> <span class="n">Int</span> <span class="k">by</span> <span class="k">this</span><span class="o">::</span><span class="n">newName</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">val</span> <span class="py">myClass</span> <span class="p">=</span> <span class="n">MyClass</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// 通知：&#39;oldName: Int&#39; is deprecated.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="c1">// Use &#39;newName&#39; instead
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="n">myClass</span><span class="p">.</span><span class="n">oldName</span> <span class="p">=</span> <span class="m">42</span>
+</span></span><span class="line"><span class="cl">   <span class="n">println</span><span class="p">(</span><span class="n">myClass</span><span class="p">.</span><span class="n">newName</span><span class="p">)</span> <span class="c1">// 42
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="将属性储存在映射中">将属性储存在映射中<a hidden class="anchor" aria-hidden="true" href="#将属性储存在映射中">#</a></h2>
+<p>一个常见的用例是在一个映射（map）里存储属性的值。这经常出现在像解析JSON或者做其他“动态”事情的应用中。在这种情况下，你可以使用映射实例自身作为委托来实现委托属性。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="k">val</span> <span class="py">map</span><span class="p">:</span> <span class="n">Map</span><span class="p">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">Any</span><span class="p">?&gt;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">name</span><span class="p">:</span> <span class="n">String</span> <span class="k">by</span> <span class="n">map</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">age</span><span class="p">:</span> <span class="n">Int</span>     <span class="k">by</span> <span class="n">map</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在这个例子中，构造函数接受一个映射参数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">val</span> <span class="py">user</span> <span class="p">=</span> <span class="n">User</span><span class="p">(</span><span class="n">mapOf</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;name&#34;</span> <span class="n">to</span> <span class="s2">&#34;John Doe&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;age&#34;</span>  <span class="n">to</span> <span class="m">25</span>
+</span></span><span class="line"><span class="cl"><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>委托属性会从这个映射中取值（通过字符串键——属性的名称）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="n">println</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="n">name</span><span class="p">)</span> <span class="c1">// Prints &#34;John Doe&#34;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">println</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="n">age</span><span class="p">)</span>  <span class="c1">// Prints 25
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这也适用于 var 属性，如果把只读的 Map 换成 MutableMap 的话：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MutableUser</span><span class="p">(</span><span class="k">val</span> <span class="py">map</span><span class="p">:</span> <span class="n">MutableMap</span><span class="p">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">Any</span><span class="p">?&gt;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">name</span><span class="p">:</span> <span class="n">String</span> <span class="k">by</span> <span class="n">map</span>
+</span></span><span class="line"><span class="cl">    <span class="k">var</span> <span class="py">age</span><span class="p">:</span> <span class="n">Int</span>     <span class="k">by</span> <span class="n">map</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="局部委托属性">局部委托属性<a hidden class="anchor" aria-hidden="true" href="#局部委托属性">#</a></h2>
+<p>你可以将局部变量声明为委托属性。 例如，你可以使一个局部变量惰性初始化：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">fun</span> <span class="nf">example</span><span class="p">(</span><span class="n">computeFoo</span><span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Foo</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">memoizedFoo</span> <span class="k">by</span> <span class="n">lazy</span><span class="p">(</span><span class="n">computeFoo</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="err">​</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">someCondition</span> <span class="o">&amp;&amp;</span> <span class="n">memoizedFoo</span><span class="p">.</span><span class="n">isValid</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memoizedFoo</span><span class="p">.</span><span class="n">doSomething</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>memoizedFoo 变量只会在第一次访问时计算。 如果 someCondition 失败，那么该变量根本不会计算。</p>
+<h2 id="提供委托">提供委托<a hidden class="anchor" aria-hidden="true" href="#提供委托">#</a></h2>
+<p>通过定义 provideDelegate 操作符，可以扩展创建属性实现所委托对象的逻辑。 如果 by 右侧所使用的对象将 provideDelegate 定义为成员或扩展函数，那么会调用该函数来 创建属性委托实例。</p>
+<p>provideDelegate 的一个可能的使用场景是在创建属性时（而不仅在其 getter 或 setter 中）检查属性一致性。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ResourceDelegate</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">:</span> <span class="n">ReadOnlyProperty</span><span class="p">&lt;</span><span class="n">MyUI</span><span class="p">,</span> <span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">override</span> <span class="k">fun</span> <span class="nf">getValue</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">MyUI</span><span class="p">,</span> <span class="k">property</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;):</span> <span class="n">T</span> <span class="p">{</span> <span class="o">..</span><span class="p">.</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ResourceLoader</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="n">id</span><span class="p">:</span> <span class="n">ResourceID</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">provideDelegate</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">thisRef</span><span class="p">:</span> <span class="n">MyUI</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">prop</span><span class="p">:</span> <span class="n">KProperty</span><span class="p">&lt;*&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">):</span> <span class="n">ReadOnlyProperty</span><span class="p">&lt;</span><span class="n">MyUI</span><span class="p">,</span> <span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">checkProperty</span><span class="p">(</span><span class="n">thisRef</span><span class="p">,</span> <span class="n">prop</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 创建委托
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="n">ResourceDelegate</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">private</span> <span class="k">fun</span> <span class="nf">checkProperty</span><span class="p">(</span><span class="n">thisRef</span><span class="p">:</span> <span class="n">MyUI</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span> <span class="err">……</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MyUI</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">bindResource</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="n">ResourceID</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;):</span> <span class="n">ResourceLoader</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span> <span class="err">……</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">image</span> <span class="k">by</span> <span class="n">bindResource</span><span class="p">(</span><span class="n">ResourceID</span><span class="p">.</span><span class="n">image_id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">val</span> <span class="py">text</span> <span class="k">by</span> <span class="n">bindResource</span><span class="p">(</span><span class="n">ResourceID</span><span class="p">.</span><span class="n">text_id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>prop.name，此处prop指的是被委托属性对象，因此prop.name就是属性的名称，在 checkProperty(thisRef, prop.name)中即可自行检查属性一致性，检查无误后，即可通过返回的getValue完成属性委托</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://www.otifik.xyz/tags/kotlin/">kotlin</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://www.otifik.xyz/posts/tech/kotlin-generics/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Kotlin反射&amp;泛型</span>
+  </a>
+  <a class="next" href="https://www.otifik.xyz/posts/tech/ipadtowindows/">
+    <span class="title">Next »</span>
+    <br>
+    <span>iPad文件传输到windows</span>
+  </a>
+</nav>
+
+  </footer><div id="tcomment"></div>
+<script src="https://cdn.staticfile.org/twikoo/1.6.7/twikoo.all.min.js"></script>
+<script>
+twikoo.init({
+  envId: 'https://twikoo-otifik.vercel.app/', 
+  el: '#tcomment', 
+  
+  
+  
+})
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2023 <a href="https://www.otifik.xyz">otifik&#39;s blog</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

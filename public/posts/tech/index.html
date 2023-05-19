@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>技术 | otifik&#39;s blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="技术 - otifik&#39;s blog">
+<meta name="author" content="otifik">
+<link rel="canonical" href="https://www.otifik.xyz/posts/tech/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b183800e2cfbb62c3bce2b2ba56cdb2dd33af76c75cf4550173d5dfebd7c68a6.css" integrity="sha256-sYOADiz7tiw7zisrpWzbLdM692x1z0VQFz1d/r18aKY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="apple-touch-icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<link rel="mask-icon" href="https://www.otifik.xyz/img/moka_circle.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://www.otifik.xyz/posts/tech/index.xml">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="技术" />
+<meta property="og:description" content="otifik,blog" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.otifik.xyz/posts/tech/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="技术"/>
+<meta name="twitter:description" content="otifik,blog"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Posts",
+      "item": "https://www.otifik.xyz/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "技术",
+      "item": "https://www.otifik.xyz/posts/tech/"
+    }
+  ]
+}
+</script>
+</head>
+
+<body class="list" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://www.otifik.xyz" accesskey="h" title="otifik&#39;s blog (Alt + H)">otifik&#39;s blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://www.otifik.xyz/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.otifik.xyz/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.otifik.xyz/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+<header class="page-header"><div class="breadcrumbs"><a href="https://www.otifik.xyz">Home</a>&nbsp;»&nbsp;<a href="https://www.otifik.xyz/posts/">Posts</a></div>
+  <h1>
+    技术
+    <a href="index.xml" title="RSS" aria-label="RSS">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" height="23">
+        <path d="M4 11a9 9 0 0 1 9 9" />
+        <path d="M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" />
+      </svg>
+    </a>
+  </h1>
+</header>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2>Android mipmap与drawable区别
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>区别 在apk安装的时候，mipmap-xxx/下的所有分辨率的图片都会保留，而drawablexxx/下的图片只有保留适配设备分辨率的图片，其余图片会丢弃掉，减少了APP安装大小。
+It’s best practice to place your app icons in mipmap- folders (not the drawable-folders) because they are used at resolutions different from the device’s current density。——from Android Developers Blog
+Using a mipmap as the source for your bitmap or drawable is a simple way to provide a quality image and various image scales, which can be particularly useful if you expect your image to be scaled during an animation....</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-05-18 09:29:50 +0800 CST'>May 18, 2023</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;otifik</footer>
+  <a class="entry-link" aria-label="post link to Android mipmap与drawable区别" href="https://www.otifik.xyz/posts/tech/android-mipmap-drawable/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2>Kotlin反射&amp;泛型
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>泛型擦除机制：编译器会将T这样的泛型擦除成Object，虚拟机本身是不知道泛型的。Java的泛型是由编译器在编译时实行的，编译器内部永远把所有类型T视为Object处理，但是，在需要转型的时候，编译器会根据T的类型自动为我们实行安全地强制转型。
+编译器看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo&lt;T&gt;{ private T bar; public Foo(T bar) { this.bar = bar; } public T getBar() { return bar; } public void setBar(T bar) { this.bar = bar; } } 虚拟机看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo{ private Object bar; public Foo(Object bar) { this....</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-05-17 09:49:52 +0800 CST'>May 17, 2023</span>&nbsp;·&nbsp;5 min&nbsp;·&nbsp;otifik</footer>
+  <a class="entry-link" aria-label="post link to Kotlin反射&amp;泛型" href="https://www.otifik.xyz/posts/tech/kotlin-generics/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2>Kotlin委托深究
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Kotiln的委托，简而言之，就是把让我干的事交给别人做。分为类委托和属性委托。 用于解耦代码。
+引用文章： https://blog.csdn.net/willway_wang/article/details/120795321 https://www.kotlincn.net/docs/reference/delegated-properties.html
+类委托 将接口的实现委托给另一个对象 但值得注意的是类必须实现一个接口，委托类必须是类所实现接口的子类型。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b fun main() { val b = BaseImpl(10) Derived(b).print() } kotlin转java字节码解析： by关键字自动生成了Derived的print，相当于Derived让Base的一个实现类帮它调用了print函数。 委托类的接口实现可以通过override覆写，如：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 interface Base { fun print() } class BaseImpl(val x: Int) : Base { override fun print() { print(x) } } class Derived(b: Base) : Base by b { override fun print() { print(&#34;fun has override&#34;) } } fun main() { val b = BaseImpl(10) Derived(b)....</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-05-15 15:05:34 +0800 CST'>May 15, 2023</span>&nbsp;·&nbsp;8 min&nbsp;·&nbsp;otifik</footer>
+  <a class="entry-link" aria-label="post link to Kotlin委托深究" href="https://www.otifik.xyz/posts/tech/kotlin-delegate/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2>iPad文件传输到windows
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>iPad文件传输到windows 处于同一wifi下的iPad与windows文件传输，务必阅读完再进行操作，亲测13g视频花了大概十分钟不到
+准备工作：打开SMB 控制面板-程序-启用或关闭windows功能
+确定后重启电脑
+创建共享文件夹 任意位置新建文件夹，右键属性-共享
+点击共享
+选择自己的账号并添加，然后点击共享（一般都默认会有自己的账号，没有的情况请自行创建一个本地账号）
+iPad连接 然后iPad上打开文件，点击三个点图标-连接服务器
+输入smb://&#43;电脑端的ip地址（cmd通过ipconfig获取，不多赘述）
+选择注册用户，输入windows用户名和密码
+用户就是C:/Users下的用户，密码就是pin
+上传文件至共享文件夹 点击分享-存储到文件，然后直接点共享文件夹存进去就好啦</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-05-03 18:04:56 +0800 CST'>May 3, 2023</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;otifik</footer>
+  <a class="entry-link" aria-label="post link to iPad文件传输到windows" href="https://www.otifik.xyz/posts/tech/ipadtowindows/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2>Scoop的安装使用
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Scoop windows包管理器
+安装 管理员模式打开PowerShell，设置用户安装路径和全局安装路径，
+1 2 3 4 $env:SCOOP=&#39;D:\Scoop&#39; [Environment]::SetEnvironmentVariable(&#39;SCOOP&#39;, $env:SCOOP, &#39;User&#39;) $env:SCOOP_GLOBAL=&#39;D:\ScoopGlobal&#39; [Environment]::SetEnvironmentVariable(&#39;SCOOP_GLOBAL&#39;, $env:SCOOP_GLOBAL, &#39;Machine&#39;) 设置PowerShell执行策略为RemoteSigned
+1 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser 安装Scoop
+1 iwr -useb get.scoop.sh | iex Scoop中安装git
+1 scoop install git 最好打开git初始化一下，否则会出现timeout等情况
+使用 添加bucket 1 scoop bucket add &lt;bucketname&gt; 安装软件 1 scoop install &lt;app&gt; 管理软件缓存 1 2 3 scoop cache show #显示安装包缓存 scoop cache rm &lt;app&gt; #删除指定应用的安装包缓存 scoop cache rm * #删除所有的安装包缓存 全局安装软件 1 scoop install -g &lt;app&gt; Aria2多线程下载 1 scoop install aria2 配置相关设置...</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-03-14 19:34:52 +0800 CST'>March 14, 2023</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;otifik</footer>
+  <a class="entry-link" aria-label="post link to Scoop的安装使用" href="https://www.otifik.xyz/posts/tech/scoop/"></a>
+</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="next" href="https://www.otifik.xyz/posts/tech/page/2/">Next&nbsp;&nbsp;»
+    </a>
+  </nav>
+</footer>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2023 <a href="https://www.otifik.xyz">otifik&#39;s blog</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

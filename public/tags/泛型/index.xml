@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>泛型 on otifik&#39;s blog</title>
+    <link>https://www.otifik.xyz/tags/%E6%B3%9B%E5%9E%8B/</link>
+    <description>Recent content in 泛型 on otifik&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 17 May 2023 09:49:52 +0800</lastBuildDate><atom:link href="https://www.otifik.xyz/tags/%E6%B3%9B%E5%9E%8B/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kotlin反射&amp;泛型</title>
+      <link>https://www.otifik.xyz/posts/tech/kotlin-generics/</link>
+      <pubDate>Wed, 17 May 2023 09:49:52 +0800</pubDate>
+      
+      <guid>https://www.otifik.xyz/posts/tech/kotlin-generics/</guid>
+      <description>泛型擦除机制：编译器会将T这样的泛型擦除成Object，虚拟机本身是不知道泛型的。Java的泛型是由编译器在编译时实行的，编译器内部永远把所有类型T视为Object处理，但是，在需要转型的时候，编译器会根据T的类型自动为我们实行安全地强制转型。
+编译器看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo&amp;lt;T&amp;gt;{ private T bar; public Foo(T bar) { this.bar = bar; } public T getBar() { return bar; } public void setBar(T bar) { this.bar = bar; } } 虚拟机看到的代码：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 public class Foo{ private Object bar; public Foo(Object bar) { this.</description>
+    </item>
+    
+  </channel>
+</rss>
